@@ -20,7 +20,8 @@ meaning of each directory is as below:
 ## Profiling java application
 ```
 android studio project: SimpleExamplePureJava
-device: Android O (Google Pixel XL)
+test device: Android O (Google Pixel XL)
+test device: Android N (Google Nexus 5X)
 ```
 steps:
 1. Build and install app:
@@ -54,7 +55,8 @@ steps:
 ## Profiling java/c++ application
 ```
 android studio project: SimpleExampleWithNative
-device: Android O (Google Pixel XL)
+test device: Android O (Google Pixel XL)
+test device: Android N (Google Nexus 5X)
 ```
 steps:
 1. Build and install app:
