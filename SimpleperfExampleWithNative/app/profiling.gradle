@@ -45,6 +45,7 @@ def writeWrapScriptToFullyCompileJavaApp(wrapFile) {
     wrapFile.withWriter { writer ->
         writer.write('#!/system/bin/sh\n')
         writer.write('echo hello world \$@\n')
+        writer.write('env\n')
         writer.write('\$@\n')
     }
 }

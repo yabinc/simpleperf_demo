@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include <pthread.h>
+#include <stdlib.h>
 
 #include <string>
 
@@ -36,7 +37,7 @@ static void ThrowErrnoException(JNIEnv* env, const char* function_name, int err)
 }
 
 int CallFunction(int a) {
-    return a + 1;
+    return a + atoi("1");
 }
 
 static void* BusyLoopThread(void*) {
