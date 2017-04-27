@@ -4,7 +4,7 @@
 
 - [Introduction](#introduction)
 - [Profiling java application](#profiling-java-application)
-- [Profiling java/c++ application](#profiling-java-c++-application)
+- [Profiling java/c++ application](#profiling-javac-application)
 
 ## Introduction
 
