@@ -26,6 +26,8 @@ test device: Android N (Google Nexus 5X)
 steps:
 1. Build and install app:
 ```
+  # Open SimpleperfExamplesPureJava project with Android studio,
+  # and build this project sucessfully, otherwise the `./gradlew` command below will fail.
   $cd SimpleperfExamplePureJava
   $./gradlew clean assemble
   $adb install -r app/build/outputs/apk/app-profiling.apk
@@ -61,6 +63,8 @@ test device: Android N (Google Nexus 5X)
 steps:
 1. Build and install app:
 ```
+  # Open SimpleperfExamplesPureJava project with Android studio,
+  # and build this project sucessfully, otherwise the `./gradlew` command below will fail.
   $cd SimpleperfExampleWithNative
   $./gradlew clean assemble
   $adb install -r app/build/outputs/apk/app-profiling.apk
