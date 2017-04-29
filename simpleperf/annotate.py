@@ -111,7 +111,11 @@ class Addr2Line(object):
                 function = stdoutdata[out_pos]
                 out_pos += 1
                 assert out_pos < len(stdoutdata)
-                file, line = stdoutdata[out_pos].split(':')
+                # Handle lines like "C:\Users\...\file:32".
+                items = stdoutdata[out_pos].rsplit(':', 1)
+                if len(items) != 2:
+                    continue
+                (file, line) = items
                 line = line.split()[0]  # Remove comments after line number
                 out_pos += 1
                 if file.find('?') != -1:
@@ -124,7 +128,7 @@ class Addr2Line(object):
                     line = int(line)
                 source_lines.append(SourceLine(file, function, line))
                 dso[addrs[addr_pos]] = source_lines
-                addr_pos += 1
+            addr_pos += 1
         assert addr_pos == len(addrs)
 
 
@@ -557,6 +561,9 @@ class SourceFileAnnotator(object):
                 path = key
                 from_path = path
                 to_path = os.path.join(dest_dir, path[1:])
+            elif is_windows() and key.find(':\\') != -1 and os.path.isfile(key):
+                from_path = key
+                to_path = os.path.join(dest_dir, key.replace(':\\', '\\'))
             else:
                 path = key[1:] if key.startswith('/') else key
                 # Change path on device to path on host
