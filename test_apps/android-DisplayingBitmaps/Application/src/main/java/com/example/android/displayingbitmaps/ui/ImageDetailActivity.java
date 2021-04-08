@@ -92,33 +92,6 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
         // Set up activity to go full screen
         getWindow().addFlags(LayoutParams.FLAG_FULLSCREEN);
 
-        // Enable some additional newer visibility and ActionBar features to create a more
-        // immersive photo viewing experience
-        if (Utils.hasHoneycomb()) {
-            final ActionBar actionBar = getActionBar();
-
-            // Hide title text and set home as up
-            actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-            // Hide and show the ActionBar as the visibility changes
-            mPager.setOnSystemUiVisibilityChangeListener(
-                    new View.OnSystemUiVisibilityChangeListener() {
-                        @Override
-                        public void onSystemUiVisibilityChange(int vis) {
-                            if ((vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0) {
-                                actionBar.hide();
-                            } else {
-                                actionBar.show();
-                            }
-                        }
-                    });
-
-            // Start low profile mode and hide ActionBar
-            mPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-            actionBar.hide();
-        }
-
         // Set the current item based on the extra passed in to this activity
         final int extraCurrentItem = getIntent().getIntExtra(EXTRA_IMAGE, -1);
         if (extraCurrentItem != -1) {
