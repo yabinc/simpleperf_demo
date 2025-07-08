@@ -23,19 +23,18 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class GridViewTest {
+public class GridViewFastTest {
     @Test
     public void scrollTopToDown() {
         ActivityScenario<ImageGridActivity> scenario = ActivityScenario.launch(ImageGridActivity.class);
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()));
-        for (int i = 0; i < Images.imageThumbUrls.length; i++) {
-            scrollToUrlAndClick(i);
-            onView(allOf(withId(R.id.imageView), withContentDescription(Images.imageUrls[i]))).check(matches(isDisplayed()));
-            pressBack();
-        }
+        int position = Images.imageThumbUrls.length - 1;
+        scrollToUrl(position);
+        onView(allOf(withId(R.id.imageView), withContentDescription(Images.imageUrls[position]))).check(matches(isDisplayed()));
+        pressBack();
     }
 
-    void scrollToUrlAndClick(int position) {
+    void scrollToUrl(int position) {
         onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
     }
 

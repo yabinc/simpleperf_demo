@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,9 +39,12 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
-import com.example.android.common.logger.Log;
 import com.example.android.displayingbitmaps.BuildConfig;
 import com.example.android.displayingbitmaps.R;
 import com.example.android.displayingbitmaps.provider.Images;
@@ -67,12 +71,12 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
     /**
      * Empty constructor as per the Fragment documentation
      */
-    public ImageGridFragment() {}
+    public ImageGridFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
@@ -103,10 +107,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
             public void onScrollStateChanged(AbsListView absListView, int scrollState) {
                 // Pause fetcher to ensure smoother scrolling when flinging
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    // Before Honeycomb pause image loading on scroll to help with performance
-                    if (!Utils.hasHoneycomb()) {
-                        mImageFetcher.setPauseWork(true);
-                    }
+                    mImageFetcher.setPauseWork(true);
                 } else {
                     mImageFetcher.setPauseWork(false);
                 }
@@ -114,7 +115,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem,
-                    int visibleItemCount, int totalItemCount) {
+                                 int visibleItemCount, int totalItemCount) {
             }
         });
 
@@ -124,7 +125,6 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
         // of each view so we get nice square thumbnails.
         mGridView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @TargetApi(VERSION_CODES.JELLY_BEAN)
                     @Override
                     public void onGlobalLayout() {
                         if (mAdapter.getNumColumns() == 0) {
@@ -138,19 +138,20 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
                                 if (BuildConfig.DEBUG) {
                                     Log.d(TAG, "onCreateView - numColumns set to " + numColumns);
                                 }
-                                if (Utils.hasJellyBean()) {
-                                    mGridView.getViewTreeObserver()
-                                            .removeOnGlobalLayoutListener(this);
-                                } else {
-                                    mGridView.getViewTreeObserver()
-                                            .removeGlobalOnLayoutListener(this);
-                                }
+                                mGridView.getViewTreeObserver()
+                                        .removeOnGlobalLayoutListener(this);
                             }
                         }
                     }
                 });
 
         return v;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requireActivity().addMenuProvider(new MyMenuProvider(), getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     @Override
@@ -174,38 +175,36 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
         mImageFetcher.closeCache();
     }
 
-    @TargetApi(VERSION_CODES.JELLY_BEAN)
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        Log.e(TAG, "onItemClick: " + id);
+        Log.e(TAG, "skip Creating ImageDetailActivity.class");
         final Intent i = new Intent(getActivity(), ImageDetailActivity.class);
         i.putExtra(ImageDetailActivity.EXTRA_IMAGE, (int) id);
-        if (Utils.hasJellyBean()) {
-            // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
-            // show plus the thumbnail image in GridView is cropped. so using
-            // makeScaleUpAnimation() instead.
-            ActivityOptions options =
-                    ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getHeight());
-            getActivity().startActivity(i, options.toBundle());
-        } else {
-            startActivity(i);
+        //  makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
+        // show plus the thumbnail image in GridView is cropped. so using
+        // makeScaleUpAnimation() instead.
+        ActivityOptions options =
+                ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getHeight());
+        getActivity().startActivity(i, options.toBundle());
+    }
+
+    private class MyMenuProvider implements MenuProvider {
+        @Override
+        public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+            menuInflater.inflate(R.menu.main_menu, menu);
         }
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.clear_cache:
+        @Override
+        public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+            if (menuItem.getItemId() == R.id.clear_cache) {
                 mImageFetcher.clearCache();
                 Toast.makeText(getActivity(), R.string.clear_cache_complete_toast,
                         Toast.LENGTH_SHORT).show();
                 return true;
+            }
+            return true;
         }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -243,29 +242,35 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
             }
 
             // Size + number of columns for top empty row
-            return Images.imageThumbUrls.length + mNumColumns;
+            //return Images.imageThumbUrls.length + mNumColumns;
+            return Images.imageThumbUrls.length;
         }
 
         @Override
         public Object getItem(int position) {
-            return position < mNumColumns ?
-                    null : Images.imageThumbUrls[position - mNumColumns];
+            //return position < mNumColumns ?
+            //        null : Images.imageThumbUrls[position - mNumColumns];
+            return Images.imageThumbUrls[position];
         }
 
         @Override
         public long getItemId(int position) {
-            return position < mNumColumns ? 0 : position - mNumColumns;
+            //return position < mNumColumns ? 0 : position - mNumColumns;
+            return position;
         }
 
         @Override
         public int getViewTypeCount() {
             // Two types of views, the normal ImageView and the top row of empty views
-            return 2;
+            //return 2;
+            return 1;
         }
 
         @Override
         public int getItemViewType(int position) {
-            return (position < mNumColumns) ? 1 : 0;
+
+            //return (position < mNumColumns) ? 1 : 0;
+            return 0;
         }
 
         @Override
@@ -277,6 +282,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
         public View getView(int position, View convertView, ViewGroup container) {
             //BEGIN_INCLUDE(load_gridview_item)
             // First check if this is the top row
+            /*
             if (position < mNumColumns) {
                 if (convertView == null) {
                     convertView = new View(mContext);
@@ -286,6 +292,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
                         LayoutParams.MATCH_PARENT, mActionBarHeight));
                 return convertView;
             }
+            */
 
             // Now handle the main ImageView thumbnails
             ImageView imageView;
@@ -296,6 +303,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
             } else { // Otherwise re-use the converted view
                 imageView = (ImageView) convertView;
             }
+            imageView.setFocusable(false);
 
             // Check the height matches our calculated column width
             if (imageView.getLayoutParams().height != mItemHeight) {
@@ -304,7 +312,10 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
 
             // Finally load the image asynchronously into the ImageView, this also takes care of
             // setting a placeholder image while the background thread runs
-            mImageFetcher.loadImage(Images.imageThumbUrls[position - mNumColumns], imageView);
+            //mImageFetcher.loadImage(Images.imageThumbUrls[position - mNumColumns], imageView);
+            //imageView.setContentDescription(Images.imageThumbUrls[position - mNumColumns]);
+            mImageFetcher.loadImage(Images.imageThumbUrls[position], imageView);
+            imageView.setContentDescription(Images.imageThumbUrls[position]);
             return imageView;
             //END_INCLUDE(load_gridview_item)
         }

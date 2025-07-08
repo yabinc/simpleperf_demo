@@ -16,7 +16,6 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.displayingbitmaps"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -30,14 +29,15 @@
         android:label="@string/app_name"
         android:description="@string/intro_message"
         android:icon="@drawable/ic_launcher"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:theme="@android:style/Theme.Material">
 
         <uses-library android:name="android.test.runner"
             android:required="false" />
 
         <activity android:name=".ui.ImageGridActivity"
-                  android:label="@string/app_name"
-            android:theme="@android:style/Theme.Material.NoActionBar">
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Material">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -48,7 +48,7 @@
             android:name=".ui.ImageDetailActivity"
             android:label="@string/app_name"
             android:parentActivityName=".ui.ImageGridActivity"
-            android:theme="@android:style/Theme.Material.NoActionBar" >
+            android:theme="@android:style/Theme.Material" >
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.ImageGridActivity" />
         </activity>

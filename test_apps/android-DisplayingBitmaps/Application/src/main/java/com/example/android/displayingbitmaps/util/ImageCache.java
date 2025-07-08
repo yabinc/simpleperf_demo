@@ -100,7 +100,7 @@ public class ImageCache {
      * ImageCache object across configuration changes such as a change in device orientation.
      *
      * @param fragmentManager The fragment manager to use when dealing with the retained fragment.
-     * @param cacheParams The cache parameters to use if the ImageCache needs instantiation.
+     * @param cacheParams     The cache parameters to use if the ImageCache needs instantiation.
      * @return An existing retained ImageCache object or a new one if one did not exist
      */
     public static ImageCache getInstance(
@@ -145,10 +145,8 @@ public class ImageCache {
             // require knowledge of the expected size of the bitmaps. From Honeycomb to JellyBean
             // the size would need to be precise, from KitKat onward the size would just need to
             // be the upper bound (due to changes in how inBitmap can re-use bitmaps).
-            if (Utils.hasHoneycomb()) {
-                mReusableBitmaps =
-                        Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
-            }
+            mReusableBitmaps =
+                    Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
 
             mMemoryCache = new LruCache<String, BitmapDrawable>(mCacheParams.memCacheSize) {
 
@@ -157,7 +155,7 @@ public class ImageCache {
                  */
                 @Override
                 protected void entryRemoved(boolean evicted, String key,
-                        BitmapDrawable oldValue, BitmapDrawable newValue) {
+                                            BitmapDrawable oldValue, BitmapDrawable newValue) {
                     if (RecyclingBitmapDrawable.class.isInstance(oldValue)) {
                         // The removed entry is a recycling drawable, so notify it
                         // that it has been removed from the memory cache
@@ -165,11 +163,9 @@ public class ImageCache {
                     } else {
                         // The removed entry is a standard BitmapDrawable
 
-                        if (Utils.hasHoneycomb()) {
-                            // We're running on Honeycomb or later, so add the bitmap
-                            // to a SoftReference set for possible use with inBitmap later
-                            mReusableBitmaps.add(new SoftReference<Bitmap>(oldValue.getBitmap()));
-                        }
+                        // We're running on Honeycomb or later, so add the bitmap
+                        // to a SoftReference set for possible use with inBitmap later
+                        mReusableBitmaps.add(new SoftReference<Bitmap>(oldValue.getBitmap()));
                     }
                 }
 
@@ -230,7 +226,8 @@ public class ImageCache {
 
     /**
      * Adds a bitmap to both memory and disk cache.
-     * @param data Unique identifier for the bitmap to store
+     *
+     * @param data  Unique identifier for the bitmap to store
      * @param value The bitmap drawable to store
      */
     public void addBitmapToCache(String data, BitmapDrawable value) {
@@ -277,7 +274,8 @@ public class ImageCache {
                         if (out != null) {
                             out.close();
                         }
-                    } catch (IOException e) {}
+                    } catch (IOException e) {
+                    }
                 }
             }
         }
@@ -321,7 +319,8 @@ public class ImageCache {
             while (mDiskCacheStarting) {
                 try {
                     mDiskCacheLock.wait();
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
             }
             if (mDiskLruCache != null) {
                 InputStream inputStream = null;
@@ -348,7 +347,8 @@ public class ImageCache {
                         if (inputStream != null) {
                             inputStream.close();
                         }
-                    } catch (IOException e) {}
+                    } catch (IOException e) {
+                    }
                 }
             }
             return bitmap;
@@ -480,7 +480,8 @@ public class ImageCache {
          * Create a set of image cache parameters that can be provided to
          * {@link ImageCache#getInstance(android.support.v4.app.FragmentManager, ImageCacheParams)} or
          * {@link ImageWorker#addImageCache(android.support.v4.app.FragmentManager, ImageCacheParams)}.
-         * @param context A context to use.
+         *
+         * @param context                A context to use.
          * @param diskCacheDirectoryName A unique subdirectory name that will be appended to the
          *                               application cache directory. Usually "cache" or "images"
          *                               is sufficient.
@@ -495,7 +496,7 @@ public class ImageCache {
          * memory. Throws {@link IllegalArgumentException} if percent is < 0.01 or > .8.
          * memCacheSize is stored in kilobytes instead of bytes as this will eventually be passed
          * to construct a LruCache which takes an int in its constructor.
-         *
+         * <p>
          * This value should be chosen carefully based on a number of factors
          * Refer to the corresponding Android Training class for more discussion:
          * http://developer.android.com/training/displaying-bitmaps/
@@ -512,21 +513,14 @@ public class ImageCache {
     }
 
     /**
-     * @param candidate - Bitmap to check
+     * @param candidate     - Bitmap to check
      * @param targetOptions - Options that have the out* value populated
      * @return true if <code>candidate</code> can be used for inBitmap re-use with
-     *      <code>targetOptions</code>
+     * <code>targetOptions</code>
      */
     @TargetApi(VERSION_CODES.KITKAT)
     private static boolean canUseForInBitmap(
             Bitmap candidate, BitmapFactory.Options targetOptions) {
-        //BEGIN_INCLUDE(can_use_for_inbitmap)
-        if (!Utils.hasKitKat()) {
-            // On earlier versions, the dimensions must match exactly and the inSampleSize must be 1
-            return candidate.getWidth() == targetOptions.outWidth
-                    && candidate.getHeight() == targetOptions.outHeight
-                    && targetOptions.inSampleSize == 1;
-        }
 
         // From Android 4.4 (KitKat) onward we can re-use if the byte size of the new bitmap
         // is smaller than the reusable bitmap candidate allocation byte count.
@@ -539,6 +533,7 @@ public class ImageCache {
 
     /**
      * Return the byte usage per pixel of a bitmap based on its configuration.
+     *
      * @param config The bitmap configuration.
      * @return The byte usage per pixel.
      */
@@ -558,7 +553,7 @@ public class ImageCache {
     /**
      * Get a usable cache directory (external if available, internal otherwise).
      *
-     * @param context The context to use
+     * @param context    The context to use
      * @param uniqueName A unique directory name to append to the cache dir
      * @return The cache dir
      */
@@ -627,36 +622,22 @@ public class ImageCache {
      * @param value
      * @return size in bytes
      */
-    @TargetApi(VERSION_CODES.KITKAT)
     public static int getBitmapSize(BitmapDrawable value) {
         Bitmap bitmap = value.getBitmap();
 
         // From KitKat onward use getAllocationByteCount() as allocated bytes can potentially be
         // larger than bitmap byte count.
-        if (Utils.hasKitKat()) {
-            return bitmap.getAllocationByteCount();
-        }
-
-        if (Utils.hasHoneycombMR1()) {
-            return bitmap.getByteCount();
-        }
-
-        // Pre HC-MR1
-        return bitmap.getRowBytes() * bitmap.getHeight();
+        return bitmap.getAllocationByteCount();
     }
 
     /**
      * Check if external storage is built-in or removable.
      *
      * @return True if external storage is removable (like an SD card), false
-     *         otherwise.
+     * otherwise.
      */
-    @TargetApi(VERSION_CODES.GINGERBREAD)
     public static boolean isExternalStorageRemovable() {
-        if (Utils.hasGingerbread()) {
-            return Environment.isExternalStorageRemovable();
-        }
-        return true;
+        return Environment.isExternalStorageRemovable();
     }
 
     /**
@@ -665,15 +646,8 @@ public class ImageCache {
      * @param context The context to use
      * @return The external cache dir
      */
-    @TargetApi(VERSION_CODES.FROYO)
     public static File getExternalCacheDir(Context context) {
-        if (Utils.hasFroyo()) {
-            return context.getExternalCacheDir();
-        }
-
-        // Before Froyo we need to construct the external cache dir ourselves
-        final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
-        return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
+        return context.getExternalCacheDir();
     }
 
     /**
@@ -682,13 +656,8 @@ public class ImageCache {
      * @param path The path to check
      * @return The space available in bytes
      */
-    @TargetApi(VERSION_CODES.GINGERBREAD)
     public static long getUsableSpace(File path) {
-        if (Utils.hasGingerbread()) {
-            return path.getUsableSpace();
-        }
-        final StatFs stats = new StatFs(path.getPath());
-        return (long) stats.getBlockSize() * (long) stats.getAvailableBlocks();
+        return path.getUsableSpace();
     }
 
     /**
@@ -697,7 +666,7 @@ public class ImageCache {
      *
      * @param fm The FragmentManager manager to use.
      * @return The existing instance of the Fragment or the new instance if just
-     *         created.
+     * created.
      */
     private static RetainFragment findOrCreateRetainFragment(FragmentManager fm) {
         //BEGIN_INCLUDE(find_create_retain_fragment)
@@ -724,7 +693,8 @@ public class ImageCache {
         /**
          * Empty constructor as per the Fragment documentation
          */
-        public RetainFragment() {}
+        public RetainFragment() {
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {

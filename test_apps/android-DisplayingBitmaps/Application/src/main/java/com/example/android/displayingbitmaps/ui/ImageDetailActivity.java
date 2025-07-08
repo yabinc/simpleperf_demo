@@ -50,7 +50,6 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
     private ImageFetcher mImageFetcher;
     private ViewPager mPager;
 
-    @TargetApi(VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (BuildConfig.DEBUG) {
@@ -120,15 +119,15 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            case R.id.clear_cache:
-                mImageFetcher.clearCache();
-                Toast.makeText(
-                        this, R.string.clear_cache_complete_toast,Toast.LENGTH_SHORT).show();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        } else if (itemId == R.id.clear_cache) {
+            mImageFetcher.clearCache();
+            Toast.makeText(
+                    this, R.string.clear_cache_complete_toast, Toast.LENGTH_SHORT).show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -174,7 +173,6 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
      * Set on the ImageView in the ViewPager children fragments, to enable/disable low profile mode
      * when the ImageView is touched.
      */
-    @TargetApi(VERSION_CODES.HONEYCOMB)
     @Override
     public void onClick(View v) {
         final int vis = mPager.getSystemUiVisibility();

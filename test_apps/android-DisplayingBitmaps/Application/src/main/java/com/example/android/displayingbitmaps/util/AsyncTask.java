@@ -41,15 +41,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * *************************************
  * Copied from JB release framework:
  * https://android.googlesource.com/platform/frameworks/base/+/jb-release/core/java/android/os/AsyncTask.java
- *
+ * <p>
  * so that threading behavior on all OS versions is the same and we can tweak behavior by using
  * executeOnExecutor() if needed.
- *
+ * <p>
  * There are 3 changes in this copy of AsyncTask:
- *    -pre-HC a single thread executor is used for serial operation
- *    (Executors.newSingleThreadExecutor) and is the default
- *    -the default THREAD_POOL_EXECUTOR was changed to use DiscardOldestPolicy
- *    -a new fixed thread pool called DUAL_THREAD_EXECUTOR was added
+ * -pre-HC a single thread executor is used for serial operation
+ * (Executors.newSingleThreadExecutor) and is the default
+ * -the default THREAD_POOL_EXECUTOR was changed to use DiscardOldestPolicy
+ * -a new fixed thread pool called DUAL_THREAD_EXECUTOR was added
  * *************************************
  *
  * <p>AsyncTask enables proper and easy use of the UI thread. This class allows to
@@ -201,7 +201,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final int MAXIMUM_POOL_SIZE = 128;
     private static final int KEEP_ALIVE = 1;
 
-    private static final ThreadFactory  sThreadFactory = new ThreadFactory() {
+    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
         public Thread newThread(Runnable r) {
@@ -224,8 +224,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * An {@link java.util.concurrent.Executor} that executes tasks one at a time in serial
      * order.  This serialization is global to a particular process.
      */
-    public static final Executor SERIAL_EXECUTOR = Utils.hasHoneycomb() ? new SerialExecutor() :
-            Executors.newSingleThreadExecutor(sThreadFactory);
+    public static final Executor SERIAL_EXECUTOR = new SerialExecutor();
 
     public static final Executor DUAL_THREAD_EXECUTOR =
             Executors.newFixedThreadPool(2, sThreadFactory);
@@ -290,12 +289,16 @@ public abstract class AsyncTask<Params, Progress, Result> {
         FINISHED,
     }
 
-    /** @hide Used to force static handler to be created. */
+    /**
+     * @hide Used to force static handler to be created.
+     */
     public static void init() {
         sHandler.getLooper();
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public static void setDefaultExecutor(Executor exec) {
         sDefaultExecutor = exec;
     }
@@ -359,14 +362,12 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * Override this method to perform a computation on a background thread. The
      * specified parameters are the parameters passed to {@link #execute}
      * by the caller of this task.
-     *
+     * <p>
      * This method can call {@link #publishProgress} to publish updates
      * on the UI thread.
      *
      * @param params The parameters of the task.
-     *
      * @return A result, defined by the subclass of this task.
-     *
      * @see #onPreExecute()
      * @see #onPostExecute
      * @see #publishProgress
@@ -389,7 +390,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * <p>This method won't be invoked if the task was cancelled.</p>
      *
      * @param result The result of the operation computed by {@link #doInBackground}.
-     *
      * @see #onPreExecute
      * @see #doInBackground
      * @see #onCancelled(Object)
@@ -403,7 +403,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * The specified values are the values passed to {@link #publishProgress}.
      *
      * @param values The values indicating progress.
-     *
      * @see #publishProgress
      * @see #doInBackground
      */
@@ -421,7 +420,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
      *
      * @param result The result, if any, computed in
      *               {@link #doInBackground(Object[])}, can be null
-     *
      * @see #cancel(boolean)
      * @see #isCancelled()
      */
@@ -452,7 +450,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * {@link #doInBackground(Object[])} to end the task as soon as possible.
      *
      * @return <tt>true</tt> if task was cancelled before it completed
-     *
      * @see #cancel(boolean)
      */
     public final boolean isCancelled() {
@@ -478,13 +475,11 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * possible.</p>
      *
      * @param mayInterruptIfRunning <tt>true</tt> if the thread executing this
-     *        task should be interrupted; otherwise, in-progress tasks are allowed
-     *        to complete.
-     *
+     *                              task should be interrupted; otherwise, in-progress tasks are allowed
+     *                              to complete.
      * @return <tt>false</tt> if the task could not be cancelled,
-     *         typically because it has already completed normally;
-     *         <tt>true</tt> otherwise
-     *
+     * typically because it has already completed normally;
+     * <tt>true</tt> otherwise
      * @see #isCancelled()
      * @see #onCancelled(Object)
      */
@@ -498,11 +493,10 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * retrieves its result.
      *
      * @return The computed result.
-     *
      * @throws java.util.concurrent.CancellationException If the computation was cancelled.
-     * @throws java.util.concurrent.ExecutionException If the computation threw an exception.
-     * @throws InterruptedException If the current thread was interrupted
-     *         while waiting.
+     * @throws java.util.concurrent.ExecutionException    If the computation threw an exception.
+     * @throws InterruptedException                       If the current thread was interrupted
+     *                                                    while waiting.
      */
     public final Result get() throws InterruptedException, ExecutionException {
         return mFuture.get();
@@ -513,15 +507,13 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * to complete, and then retrieves its result.
      *
      * @param timeout Time to wait before cancelling the operation.
-     * @param unit The time unit for the timeout.
-     *
+     * @param unit    The time unit for the timeout.
      * @return The computed result.
-     *
      * @throws java.util.concurrent.CancellationException If the computation was cancelled.
-     * @throws java.util.concurrent.ExecutionException If the computation threw an exception.
-     * @throws InterruptedException If the current thread was interrupted
-     *         while waiting.
-     * @throws java.util.concurrent.TimeoutException If the wait timed out.
+     * @throws java.util.concurrent.ExecutionException    If the computation threw an exception.
+     * @throws InterruptedException                       If the current thread was interrupted
+     *                                                    while waiting.
+     * @throws java.util.concurrent.TimeoutException      If the wait timed out.
      */
     public final Result get(long timeout, TimeUnit unit) throws InterruptedException,
             ExecutionException, TimeoutException {
@@ -547,12 +539,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * <p>This method must be invoked on the UI thread.
      *
      * @param params The parameters of the task.
-     *
      * @return This instance of AsyncTask.
-     *
      * @throws IllegalStateException If {@link #getStatus()} returns either
-     *         {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
-     *
+     *                               {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
      * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
      * @see #execute(Runnable)
      */
@@ -582,19 +571,16 @@ public abstract class AsyncTask<Params, Progress, Result> {
      *
      * <p>This method must be invoked on the UI thread.
      *
-     * @param exec The executor to use.  {@link #THREAD_POOL_EXECUTOR} is available as a
-     *              convenient process-wide thread pool for tasks that are loosely coupled.
+     * @param exec   The executor to use.  {@link #THREAD_POOL_EXECUTOR} is available as a
+     *               convenient process-wide thread pool for tasks that are loosely coupled.
      * @param params The parameters of the task.
-     *
      * @return This instance of AsyncTask.
-     *
      * @throws IllegalStateException If {@link #getStatus()} returns either
-     *         {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
-     *
+     *                               {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
      * @see #execute(Object[])
      */
     public final AsyncTask<Params, Progress, Result> executeOnExecutor(Executor exec,
-            Params... params) {
+                                                                       Params... params) {
         if (mStatus != Status.PENDING) {
             switch (mStatus) {
                 case RUNNING:
@@ -634,12 +620,11 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * publish updates on the UI thread while the background computation is
      * still running. Each call to this method will trigger the execution of
      * {@link #onProgressUpdate} on the UI thread.
-     *
+     * <p>
      * {@link #onProgressUpdate} will note be called if the task has been
      * canceled.
      *
      * @param values The progress values to update the UI with.
-     *
      * @see #onProgressUpdate
      * @see #doInBackground
      */

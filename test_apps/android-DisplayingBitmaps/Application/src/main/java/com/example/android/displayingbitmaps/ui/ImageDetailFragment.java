@@ -17,6 +17,7 @@
 package com.example.android.displayingbitmaps.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,6 +28,7 @@ import android.widget.ProgressBar;
 import androidx.fragment.app.Fragment;
 
 import com.example.android.displayingbitmaps.R;
+import com.example.android.displayingbitmaps.provider.Images;
 import com.example.android.displayingbitmaps.util.ImageFetcher;
 import com.example.android.displayingbitmaps.util.ImageWorker;
 import com.example.android.displayingbitmaps.util.Utils;
@@ -35,6 +37,7 @@ import com.example.android.displayingbitmaps.util.Utils;
  * This fragment will populate the children of the ViewPager from {@link ImageDetailActivity}.
  */
 public class ImageDetailFragment extends Fragment implements ImageWorker.OnImageLoadedListener {
+    private static final String TAG = "ImageDetailFragment";
     private static final String IMAGE_DATA_EXTRA = "extra_image_data";
     private String mImageUrl;
     private ImageView mImageView;
@@ -60,7 +63,8 @@ public class ImageDetailFragment extends Fragment implements ImageWorker.OnImage
     /**
      * Empty constructor as per the Fragment documentation
      */
-    public ImageDetailFragment() {}
+    public ImageDetailFragment() {
+    }
 
     /**
      * Populate image using a url from extras, use the convenience factory method
@@ -70,11 +74,13 @@ public class ImageDetailFragment extends Fragment implements ImageWorker.OnImage
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mImageUrl = getArguments() != null ? getArguments().getString(IMAGE_DATA_EXTRA) : null;
+
+        Log.e(TAG, "onCreate: " + mImageUrl);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         // Inflate and locate the main ImageView
         final View v = inflater.inflate(R.layout.image_detail_fragment, container, false);
         mImageView = (ImageView) v.findViewById(R.id.imageView);
@@ -91,12 +97,13 @@ public class ImageDetailFragment extends Fragment implements ImageWorker.OnImage
         if (ImageDetailActivity.class.isInstance(getActivity())) {
             mImageFetcher = ((ImageDetailActivity) getActivity()).getImageFetcher();
             mImageFetcher.loadImage(mImageUrl, mImageView, this);
+            mImageView.setContentDescription(mImageUrl);
         }
 
         // Pass clicks on the ImageView to the parent activity to handle
-        if (OnClickListener.class.isInstance(getActivity()) && Utils.hasHoneycomb()) {
-            mImageView.setOnClickListener((OnClickListener) getActivity());
-        }
+        //if (OnClickListener.class.isInstance(getActivity())) {
+        //    mImageView.setOnClickListener((OnClickListener) getActivity());
+        //}
     }
 
     @Override

@@ -39,7 +39,8 @@ public class ImageGridActivity extends FragmentActivity {
 
         if (getSupportFragmentManager().findFragmentByTag(TAG) == null) {
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(android.R.id.content, new ImageGridFragment(), TAG);
+            //ft.add(android.R.id.content, new ImageGridFragment(), TAG);
+            ft.add(android.R.id.content, new ImageGridFragmentV2(), TAG);
             ft.commit();
         }
     }
