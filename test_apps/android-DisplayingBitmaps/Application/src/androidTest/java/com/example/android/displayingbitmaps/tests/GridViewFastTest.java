@@ -21,6 +21,8 @@ import com.example.android.displayingbitmaps.ui.ImageGridActivity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Random;
+
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class GridViewFastTest {
@@ -28,13 +30,14 @@ public class GridViewFastTest {
     public void scrollTopToDown() {
         ActivityScenario<ImageGridActivity> scenario = ActivityScenario.launch(ImageGridActivity.class);
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()));
-        int position = Images.imageThumbUrls.length - 1;
-        scrollToUrl(position);
-        onView(allOf(withId(R.id.imageView), withContentDescription(Images.imageUrls[position]))).check(matches(isDisplayed()));
-        pressBack();
+        for (int position = 0; position < 15; position++) {
+            scrollToUrlAndClick(position);
+            onView(allOf(withId(R.id.imageView), withContentDescription(Images.imageUrls[position]))).check(matches(isDisplayed()));
+            pressBack();
+        }
     }
 
-    void scrollToUrl(int position) {
+    void scrollToUrlAndClick(int position) {
         onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
     }
 

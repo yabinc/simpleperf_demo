@@ -74,8 +74,6 @@ public class ImageDetailFragment extends Fragment implements ImageWorker.OnImage
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mImageUrl = getArguments() != null ? getArguments().getString(IMAGE_DATA_EXTRA) : null;
-
-        Log.e(TAG, "onCreate: " + mImageUrl);
     }
 
     @Override
@@ -85,25 +83,10 @@ public class ImageDetailFragment extends Fragment implements ImageWorker.OnImage
         final View v = inflater.inflate(R.layout.image_detail_fragment, container, false);
         mImageView = (ImageView) v.findViewById(R.id.imageView);
         mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar);
+        mImageFetcher = ((ImageDetailActivity) getActivity()).getImageFetcher();
+        mImageFetcher.loadImage(mImageUrl, mImageView, this);
+        mImageView.setContentDescription(mImageUrl);
         return v;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // Use the parent activity to load the image asynchronously into the ImageView (so a single
-        // cache can be used over all pages in the ViewPager
-        if (ImageDetailActivity.class.isInstance(getActivity())) {
-            mImageFetcher = ((ImageDetailActivity) getActivity()).getImageFetcher();
-            mImageFetcher.loadImage(mImageUrl, mImageView, this);
-            mImageView.setContentDescription(mImageUrl);
-        }
-
-        // Pass clicks on the ImageView to the parent activity to handle
-        //if (OnClickListener.class.isInstance(getActivity())) {
-        //    mImageView.setOnClickListener((OnClickListener) getActivity());
-        //}
     }
 
     @Override
