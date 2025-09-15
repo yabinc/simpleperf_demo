@@ -284,7 +284,7 @@ void PlayScene::OnKillGraphics() {
 
 void PlayScene::DoFrame() {
     float deltaT = mFrameClock.ReadDelta();
-    float previousY = mPlayerPos.y;
+    //float previousY = mPlayerPos.y;
 
     // clear screen
     glClearColor(0.0, 0.0, 0.0, 1.0);

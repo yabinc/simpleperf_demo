@@ -26,6 +26,7 @@
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name">
     <activity android:name="android.app.NativeActivity"
+              android:exported="true"
               android:label="@string/app_name"
               android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
               android:screenOrientation="landscape"

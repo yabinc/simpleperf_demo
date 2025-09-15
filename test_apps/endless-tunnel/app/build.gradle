@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
 
 android {
-    compileSdkVersion 28
+    ndkVersion '28.0.12916984 rc3'
+    namespace "com.google.sample.tunnel"
+    compileSdkVersion 35
 
     defaultConfig {
         applicationId 'com.google.sample.tunnel'
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion 23
+        targetSdkVersion 35
         versionCode     1
         versionName    '1.0'
         externalNativeBuild {
@@ -47,7 +53,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            version '3.10.2'
+            version '3.18.1'
             path 'src/main/cpp/CMakeLists.txt'
         }
     }
