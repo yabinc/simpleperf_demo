@@ -21,7 +21,7 @@ plugins {
 }
 
 android {
-    ndkVersion '28.0.12916984 rc3'
+    ndkVersion '29.0.14033849'
     namespace "com.google.sample.tunnel"
     compileSdkVersion 35
 

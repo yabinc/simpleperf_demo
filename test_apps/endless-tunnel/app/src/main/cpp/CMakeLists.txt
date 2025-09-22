@@ -27,6 +27,13 @@ set(CMAKE_SHARED_LINKER_FLAGS
 
 # Set common compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
+
+# Set clang options to use AutoFDO profile
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdebug-info-for-profiling -mllvm -enable-fs-discriminator=true -mllvm -improved-fs-discriminator=true -funique-internal-linkage-names")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-sample-use=${CMAKE_CURRENT_SOURCE_DIR}/libgame.llvm_profdata")
+# It's optional to add -fprofile-sample-accurate. Once added, it may de-optimize cold functions.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-sample-accurate")
+
 add_definitions("-DGLM_FORCE_SIZE_T_LENGTH -DGLM_FORCE_RADIANS")
 
 # Import the CMakeLists.txt for the glm library
