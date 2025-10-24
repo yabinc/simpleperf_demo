@@ -28,11 +28,39 @@ set(CMAKE_SHARED_LINKER_FLAGS
 # Set common compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
 
+set(MY_SOURCES
+        android_main.cpp
+        anim.cpp
+        ascii_to_geom.cpp
+        dialog_scene.cpp
+        indexbuf.cpp
+        input_util.cpp
+        jni_util.cpp
+        native_engine.cpp
+        obstacle.cpp
+        obstacle_generator.cpp
+        our_shader.cpp
+        play_scene.cpp
+        scene.cpp
+        scene_manager.cpp
+        sfxman.cpp
+        shader.cpp
+        shape_renderer.cpp
+        tex_quad.cpp
+        text_renderer.cpp
+        texture.cpp
+        ui_scene.cpp
+        util.cpp
+        vertexbuf.cpp
+        welcome_scene.cpp
+)
+
 # Set clang options to use AutoFDO profile
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdebug-info-for-profiling -mllvm -enable-fs-discriminator=true -mllvm -improved-fs-discriminator=true -funique-internal-linkage-names")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-sample-use=${CMAKE_CURRENT_SOURCE_DIR}/libgame.llvm_profdata")
 # It's optional to add -fprofile-sample-accurate. Once added, it may de-optimize cold functions.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-sample-accurate")
+set_source_files_properties(${MY_SOURCES} PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libgame.llvm_profdata)
 
 add_definitions("-DGLM_FORCE_SIZE_T_LENGTH -DGLM_FORCE_RADIANS")
 
@@ -40,31 +68,7 @@ add_definitions("-DGLM_FORCE_SIZE_T_LENGTH -DGLM_FORCE_RADIANS")
 add_subdirectory(glm)
 
 # now build app's shared lib
-add_library(game SHARED
-     android_main.cpp
-     anim.cpp
-     ascii_to_geom.cpp
-     dialog_scene.cpp
-     indexbuf.cpp
-     input_util.cpp
-     jni_util.cpp
-     native_engine.cpp
-     obstacle.cpp
-     obstacle_generator.cpp
-     our_shader.cpp
-     play_scene.cpp
-     scene.cpp
-     scene_manager.cpp
-     sfxman.cpp
-     shader.cpp
-     shape_renderer.cpp
-     tex_quad.cpp
-     text_renderer.cpp
-     texture.cpp
-     ui_scene.cpp
-     util.cpp
-     vertexbuf.cpp
-     welcome_scene.cpp)
+add_library(game SHARED ${MY_SOURCES})
 
 target_include_directories(game PRIVATE
      ${CMAKE_CURRENT_SOURCE_DIR}
